@@ -1,18 +1,11 @@
 <?php
 
-namespace Hexlet\Validator;
+namespace Hexlet\Validator\Schemas;
 
-class NumberSchema
+class NumberSchema extends BaseSchema
 {
-    private bool $isRequired = false;
     private bool $isPositive = false;
     private ?array $range = null;
-
-    public function required(): self
-    {
-        $this->isRequired = true;
-        return $this;
-    }
 
     public function positive(): self
     {
@@ -26,16 +19,21 @@ class NumberSchema
         return $this;
     }
 
-    public function isValid(?int $value): bool
+    public function isValid($value): bool
     {
         // Check required
-        if ($this->isRequired && $value === null) {
+        if ($this->required && $value === null) {
             return false;
         }
 
         // If value is null and not required, it's valid
         if ($value === null) {
             return true;
+        }
+
+        // Check if value is numeric
+        if (!is_numeric($value)) {
+            return false;
         }
 
         // Check positive

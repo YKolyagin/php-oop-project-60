@@ -104,4 +104,42 @@ class ValidatorTest extends TestCase
         $this->assertFalse($schema->isValid(150));   // Range fails
         $this->assertTrue($schema->isValid(50));     // All pass
     }
+
+    public function testArrayValidation(): void
+    {
+        $v = new Validator();
+        $schema = $v->array();
+
+        // По умолчанию null является валидным
+        $this->assertTrue($schema->isValid(null));
+
+        // Тест required
+        $schema->required();
+        $this->assertFalse($schema->isValid(null));
+        $this->assertTrue($schema->isValid([]));
+        $this->assertTrue($schema->isValid(['hexlet']));
+    }
+
+    public function testArraySizeof(): void
+    {
+        $v = new Validator();
+        $schema = $v->array();
+
+        // Без required null по-прежнему валиден
+        $this->assertTrue($schema->isValid(null));
+
+        // Проверка sizeof
+        $schema->sizeof(2);
+        $this->assertFalse($schema->isValid(['hexlet'])); // только 1 элемент
+        $this->assertTrue($schema->isValid(['hexlet', 'code-basics'])); // 2 элемента
+        $this->assertFalse($schema->isValid(['hexlet', 'code-basics', 'test'])); // 3 элемента
+
+        // Проверка с required
+        $schema->required();
+        $this->assertFalse($schema->isValid(null)); // теперь null не валиден
+        $this->assertFalse($schema->isValid([])); // пустой массив
+        $this->assertFalse($schema->isValid(['hexlet'])); // 1 элемент
+        $this->assertTrue($schema->isValid(['hexlet', 'code-basics'])); // 2 элемента
+    }
+
 }
