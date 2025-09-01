@@ -6,18 +6,11 @@ use Hexlet\Validator\Validator;
 
 class NumberSchema extends BaseSchema
 {
-    private bool $isPositive = false;
     private ?array $range = null;
 
     public function __construct(?Validator $validator = null)
     {
         parent::__construct($validator ?? new Validator(), 'number');
-    }
-
-    public function positive(): self
-    {
-        $this->isPositive = true;
-        return $this;
     }
 
     public function range(int $min, int $max): self
@@ -26,38 +19,54 @@ class NumberSchema extends BaseSchema
         return $this;
     }
 
-    public function isValid($value): bool
+    public function isValid(?int $value): bool
     {
-        // Check required
         if ($this->required && $value === null) {
             return false;
         }
 
-        // If value is null and not required, it's valid
         if ($value === null) {
             return true;
         }
 
-        // Check if value is numeric
-        if (!is_numeric($value)) {
-            return false;
-        }
-
-        // Check positive
         if ($this->isPositive && $value <= 0) {
             return false;
         }
 
-        // Check range
         if ($this->range !== null && ($value < $this->range['min'] || $value > $this->range['max'])) {
             return false;
         }
-        
-        // Run custom tests
+
         if (!$this->runCustomTests($value)) {
             return false;
         }
 
         return true;
+    }
+
+
+    public function positive(): self
+    {
+        $this->isPositive = true;
+        return $this;
+    }
+
+    protected function runCustomTests(int $value): bool
+    {
+        foreach ($this->customTests as $test) {
+            $validator = $this->validator->getCustomValidator($this->type, $test['name']);
+            if ($validator !== null) {
+                if (!call_user_func($validator, $value, ...$test['args'])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public function test(string $name, int ...$args): self
+    {
+        $this->customTests[] = ['name' => $name, 'args' => $args];
+        return $this;
     }
 }

@@ -6,6 +6,8 @@ use Hexlet\Validator\Validator;
 
 abstract class BaseSchema
 {
+    protected ?int $minLength = null;
+    protected bool $isPositive = false;
     protected bool $required = false;
     protected Validator $validator;
     protected string $type;
@@ -17,30 +19,12 @@ abstract class BaseSchema
         $this->type = $type;
     }
 
-    public function required(): self
+    /**
+     * @return static
+     */
+    public function required()
     {
         $this->required = true;
         return $this;
     }
-    
-    public function test(string $name, ...$args): self
-    {
-        $this->customTests[] = ['name' => $name, 'args' => $args];
-        return $this;
-    }
-    
-    protected function runCustomTests($value): bool
-    {
-        foreach ($this->customTests as $test) {
-            $validator = $this->validator->getCustomValidator($this->type, $test['name']);
-            if ($validator) {
-                if (!call_user_func($validator, $value, ...$test['args'])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    abstract public function isValid($value): bool;
 }

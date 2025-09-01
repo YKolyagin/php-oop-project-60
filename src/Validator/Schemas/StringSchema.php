@@ -7,7 +7,6 @@ use Hexlet\Validator\Validator;
 class StringSchema extends BaseSchema
 {
     private ?string $contains = null;
-    private ?int $minLength = null;
 
     public function __construct(?Validator $validator = null)
     {
@@ -26,43 +25,51 @@ class StringSchema extends BaseSchema
         return $this;
     }
 
-    public function isValid($value): bool
+    public function isValid(?string $value): bool
     {
-        // Check required
         if ($this->required && ($value === null || $value === '')) {
             return false;
         }
 
-        // If value is null and not required, it's valid
         if ($value === null) {
             return true;
         }
 
-        // Check if value is string
-        if (!is_string($value)) {
-            return false;
-        }
-
-        // Check empty string when required
         if ($this->required && $value === '') {
             return false;
         }
 
-        // Check minLength
         if ($this->minLength !== null && strlen($value) < $this->minLength) {
             return false;
         }
 
-        // Check contains
         if ($this->contains !== null && strpos($value, $this->contains) === false) {
             return false;
         }
-        
-        // Run custom tests
+
         if (!$this->runCustomTests($value)) {
             return false;
         }
 
         return true;
+    }
+
+    protected function runCustomTests(string $value): bool
+    {
+        foreach ($this->customTests as $test) {
+            $validator = $this->validator->getCustomValidator($this->type, $test['name']);
+            if ($validator !== null) {
+                if (!call_user_func($validator, $value, ...$test['args'])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public function test(string $name, string ...$args): self
+    {
+        $this->customTests[] = ['name' => $name, 'args' => $args];
+        return $this;
     }
 }

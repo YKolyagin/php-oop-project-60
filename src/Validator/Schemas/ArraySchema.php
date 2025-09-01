@@ -26,49 +26,55 @@ class ArraySchema extends BaseSchema
         return $this;
     }
 
-    public function isValid($value): bool
+    public function isValid(?array $value): bool
     {
-        // Check required
-        if ($this->required && ($value === null || !is_array($value))) {
+        if ($this->required && $value === null) {
             return false;
         }
 
-        // If value is null and not required, it's valid
         if ($value === null) {
             return true;
         }
 
-        // Check if value is array
-        if (!is_array($value)) {
-            return false;
-        }
-
-        // Check size
         if ($this->size !== null && count($value) !== $this->size) {
             return false;
         }
 
-        // Check shape validation
         foreach ($this->shapeSchemas as $key => $schema) {
-            // If key exists in the value array, validate it
             if (array_key_exists($key, $value)) {
                 if (!$schema->isValid($value[$key])) {
                     return false;
                 }
             } else {
-                // If key doesn't exist, check if the schema is required
-                // We need to check if the schema requires the value
                 if (property_exists($schema, 'required') && $schema->required) {
                     return false;
                 }
             }
         }
-        
-        // Run custom tests
+
         if (!$this->runCustomTests($value)) {
             return false;
         }
 
         return true;
+    }
+
+    protected function runCustomTests(array $value): bool
+    {
+        foreach ($this->customTests as $test) {
+            $validator = $this->validator->getCustomValidator($this->type, $test['name']);
+            if ($validator !== null) {
+                if (!call_user_func($validator, $value, ...$test['args'])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public function test(string $name, string ...$args): self
+    {
+        $this->customTests[] = ['name' => $name, 'args' => $args];
+        return $this;
     }
 }
