@@ -19,6 +19,12 @@ class StringSchema extends BaseSchema
         return $this;
     }
 
+    public function minLength(int $length): self
+    {
+        $this->minLength = $length;
+        return $this;
+    }
+
     public function isValid(?string $value): bool
     {
         if ($this->required && ($value === null || $value === '')) {

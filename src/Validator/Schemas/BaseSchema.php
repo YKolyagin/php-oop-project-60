@@ -19,21 +19,12 @@ abstract class BaseSchema
         $this->type = $type;
     }
 
-    public function minLength(int $length): self
-    {
-        $this->minLength = $length;
-        return $this;
-    }
-
-    public function required(): self
+    /**
+     * @return static
+     */
+    public function required()
     {
         $this->required = true;
-        return $this;
-    }
-
-    public function positive(): self
-    {
-        $this->isPositive = true;
         return $this;
     }
 }

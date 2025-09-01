@@ -44,6 +44,13 @@ class NumberSchema extends BaseSchema
         return true;
     }
 
+
+    public function positive(): self
+    {
+        $this->isPositive = true;
+        return $this;
+    }
+
     protected function runCustomTests(int $value): bool
     {
         foreach ($this->customTests as $test) {
