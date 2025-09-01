@@ -2,10 +2,17 @@
 
 namespace Hexlet\Validator\Schemas;
 
+use Hexlet\Validator\Validator;
+
 class StringSchema extends BaseSchema
 {
     private ?string $contains = null;
     private ?int $minLength = null;
+
+    public function __construct(?Validator $validator = null)
+    {
+        parent::__construct($validator ?? new Validator(), 'string');
+    }
 
     public function contains(string $substring): self
     {
@@ -48,6 +55,11 @@ class StringSchema extends BaseSchema
 
         // Check contains
         if ($this->contains !== null && strpos($value, $this->contains) === false) {
+            return false;
+        }
+        
+        // Run custom tests
+        if (!$this->runCustomTests($value)) {
             return false;
         }
 

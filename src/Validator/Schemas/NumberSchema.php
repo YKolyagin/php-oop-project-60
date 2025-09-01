@@ -2,10 +2,17 @@
 
 namespace Hexlet\Validator\Schemas;
 
+use Hexlet\Validator\Validator;
+
 class NumberSchema extends BaseSchema
 {
     private bool $isPositive = false;
     private ?array $range = null;
+
+    public function __construct(?Validator $validator = null)
+    {
+        parent::__construct($validator ?? new Validator(), 'number');
+    }
 
     public function positive(): self
     {
@@ -43,6 +50,11 @@ class NumberSchema extends BaseSchema
 
         // Check range
         if ($this->range !== null && ($value < $this->range['min'] || $value > $this->range['max'])) {
+            return false;
+        }
+        
+        // Run custom tests
+        if (!$this->runCustomTests($value)) {
             return false;
         }
 

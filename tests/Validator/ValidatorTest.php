@@ -215,4 +215,52 @@ class ValidatorTest extends TestCase
         // No shape defined, should work as before
         $this->assertTrue($schema->isValid(['any', 'array']));
     }
+    
+    public function testCustomStringValidator(): void
+    {
+        $v = new Validator();
+        
+        $fn = fn($value, $start) => strpos($value, $start) === 0;
+        $v->addValidator('string', 'startWith', $fn);
+        
+        $schema = $v->string()->test('startWith', 'H');
+        $this->assertFalse($schema->isValid('exlet'));
+        $this->assertTrue($schema->isValid('Hexlet'));
+        
+        // Test with non-existent validator (should pass)
+        $schema2 = $v->string()->test('nonExistent', 'H');
+        $this->assertTrue($schema2->isValid('exlet'));
+        $this->assertTrue($schema2->isValid('Hexlet'));
+    }
+    
+    public function testCustomNumberValidator(): void
+    {
+        $v = new Validator();
+        
+        $fn = fn($value, $min) => $value >= $min;
+        $v->addValidator('number', 'min', $fn);
+        
+        $schema = $v->number()->test('min', 5);
+        $this->assertFalse($schema->isValid(4));
+        $this->assertTrue($schema->isValid(6));
+        $this->assertTrue($schema->isValid(5)); // boundary test
+        
+        // Test with non-existent validator (should pass)
+        $schema2 = $v->number()->test('nonExistent', 5);
+        $this->assertTrue($schema2->isValid(4));
+        $this->assertTrue($schema2->isValid(6));
+    }
+    
+    public function testMultipleCustomValidators(): void
+    {
+        $v = new Validator();
+        
+        $v->addValidator('string', 'startWith', fn($value, $start) => strpos($value, $start) === 0);
+        $v->addValidator('string', 'endWith', fn($value, $end) => substr($value, -strlen($end)) === $end);
+        
+        $schema = $v->string()->test('startWith', 'H')->test('endWith', 't');
+        $this->assertFalse($schema->isValid('Hexlety'));
+        $this->assertFalse($schema->isValid('YexleH'));
+        $this->assertTrue($schema->isValid('Hexlet'));
+    }
 }

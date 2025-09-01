@@ -2,10 +2,17 @@
 
 namespace Hexlet\Validator\Schemas;
 
+use Hexlet\Validator\Validator;
+
 class ArraySchema extends BaseSchema
 {
     private ?int $size = null;
     private array $shapeSchemas = [];
+
+    public function __construct(?Validator $validator = null)
+    {
+        parent::__construct($validator ?? new Validator(), 'array');
+    }
 
     public function sizeof(int $size): self
     {
@@ -55,6 +62,11 @@ class ArraySchema extends BaseSchema
                     return false;
                 }
             }
+        }
+        
+        // Run custom tests
+        if (!$this->runCustomTests($value)) {
+            return false;
         }
 
         return true;
