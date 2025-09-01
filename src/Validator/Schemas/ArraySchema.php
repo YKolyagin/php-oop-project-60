@@ -28,16 +28,12 @@ class ArraySchema extends BaseSchema
 
     public function isValid(?array $value): bool
     {
-        if ($this->required && ($value === null || !is_array($value))) {
+        if ($this->required && $value === null) {
             return false;
         }
 
         if ($value === null) {
             return true;
-        }
-
-        if (!is_array($value)) {
-            return false;
         }
 
         if ($this->size !== null && count($value) !== $this->size) {
@@ -61,5 +57,24 @@ class ArraySchema extends BaseSchema
         }
 
         return true;
+    }
+
+    protected function runCustomTests(array $value): bool
+    {
+        foreach ($this->customTests as $test) {
+            $validator = $this->validator->getCustomValidator($this->type, $test['name']);
+            if (!empty($validator)) {
+                if (!call_user_func($validator, $value, ...$test['args'])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public function test(string $name, string ...$args): self
+    {
+        $this->customTests[] = ['name' => $name, 'args' => $args];
+        return $this;
     }
 }

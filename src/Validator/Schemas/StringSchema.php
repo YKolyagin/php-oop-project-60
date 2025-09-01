@@ -58,4 +58,23 @@ class StringSchema extends BaseSchema
 
         return true;
     }
+
+    protected function runCustomTests(string $value): bool
+    {
+        foreach ($this->customTests as $test) {
+            $validator = $this->validator->getCustomValidator($this->type, $test['name']);
+            if (!empty($validator)) {
+                if (!call_user_func($validator, $value, ...$test['args'])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public function test(string $name, string ...$args): self
+    {
+        $this->customTests[] = ['name' => $name, 'args' => $args];
+        return $this;
+    }
 }
