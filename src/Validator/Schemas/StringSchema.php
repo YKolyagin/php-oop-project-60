@@ -26,39 +26,32 @@ class StringSchema extends BaseSchema
         return $this;
     }
 
-    public function isValid($value): bool
+    public function isValid(?string $value): bool
     {
-        // Check required
         if ($this->required && ($value === null || $value === '')) {
             return false;
         }
 
-        // If value is null and not required, it's valid
         if ($value === null) {
             return true;
         }
 
-        // Check if value is string
         if (!is_string($value)) {
             return false;
         }
 
-        // Check empty string when required
         if ($this->required && $value === '') {
             return false;
         }
 
-        // Check minLength
         if ($this->minLength !== null && strlen($value) < $this->minLength) {
             return false;
         }
 
-        // Check contains
         if ($this->contains !== null && strpos($value, $this->contains) === false) {
             return false;
         }
 
-        // Run custom tests
         if (!$this->runCustomTests($value)) {
             return false;
         }

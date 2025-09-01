@@ -15,17 +15,15 @@ class ValidatorTest extends TestCase
         $schema = $v->string();
         $schema2 = $v->string();
 
-        // По умолчанию все значения валидны
-        $this->assertTrue($schema->isValid(''));
-        $this->assertTrue($schema->isValid(null));
-        $this->assertTrue($schema->isValid('what does the fox say'));
+        self::assertTrue($schema->isValid(''));
+        self::assertTrue($schema->isValid(null));
+        self::assertTrue($schema->isValid('what does the fox say'));
 
-        // После вызова required()
         $schema->required();
-        $this->assertTrue($schema2->isValid('')); // Другая схема
-        $this->assertFalse($schema->isValid(null));
-        $this->assertFalse($schema->isValid(''));
-        $this->assertTrue($schema->isValid('hexlet'));
+        self::assertTrue($schema2->isValid('')); // Другая схема
+        self::assertFalse($schema->isValid(null));
+        self::assertFalse($schema->isValid(''));
+        self::assertTrue($schema->isValid('hexlet'));
     }
 
     public function testContains(): void
@@ -33,17 +31,16 @@ class ValidatorTest extends TestCase
         $v = new Validator();
         $schema = $v->string();
 
-        $this->assertTrue($schema->contains('what')->isValid('what does the fox say'));
-        $this->assertFalse($schema->contains('whatthe')->isValid('what does the fox say'));
+        self::assertTrue($schema->contains('what')->isValid('what does the fox say'));
+        self::assertFalse($schema->contains('whatthe')->isValid('what does the fox say'));
     }
 
     public function testMinLength(): void
     {
         $v = new Validator();
 
-        // Последний вызов minLength имеет приоритет
-        $this->assertTrue($v->string()->minLength(10)->minLength(5)->isValid('Hexlet'));
-        $this->assertFalse($v->string()->minLength(10)->isValid('Hexlet'));
+        self::assertTrue($v->string()->minLength(10)->minLength(5)->isValid('Hexlet'));
+        self::assertFalse($v->string()->minLength(10)->isValid('Hexlet'));
     }
 
     public function testCombinedValidators(): void
@@ -51,11 +48,11 @@ class ValidatorTest extends TestCase
         $v = new Validator();
         $schema = $v->string()->required()->minLength(5)->contains('test');
 
-        $this->assertFalse($schema->isValid(''));
-        $this->assertFalse($schema->isValid(null));
-        $this->assertFalse($schema->isValid('test')); // слишком короткая строка
-        $this->assertFalse($schema->isValid('short')); // не содержит 'test'
-        $this->assertTrue($schema->isValid('this is a test string'));
+        self::assertFalse($schema->isValid(''));
+        self::assertFalse($schema->isValid(null));
+        self::assertFalse($schema->isValid('test')); // слишком короткая строка
+        self::assertFalse($schema->isValid('short')); // не содержит 'test'
+        self::assertTrue($schema->isValid('this is a test string'));
     }
 
     public function testNumberValidation(): void
@@ -63,13 +60,11 @@ class ValidatorTest extends TestCase
         $v = new Validator();
         $schema = $v->number();
 
-        // By default null is valid
-        $this->assertTrue($schema->isValid(null));
+        self::assertTrue($schema->isValid(null));
 
-        // Test required
         $schema->required();
-        $this->assertFalse($schema->isValid(null));
-        $this->assertTrue($schema->isValid(7));
+        self::assertFalse($schema->isValid(null));
+        self::assertTrue($schema->isValid(7));
     }
 
     public function testNumberPositive(): void
@@ -77,9 +72,9 @@ class ValidatorTest extends TestCase
         $v = new Validator();
         $schema = $v->number();
 
-        $this->assertTrue($schema->positive()->isValid(10));
-        $this->assertFalse($schema->positive()->isValid(-5));
-        $this->assertFalse($schema->positive()->isValid(0)); // Zero is not positive
+        self::assertTrue($schema->positive()->isValid(10));
+        self::assertFalse($schema->positive()->isValid(-5));
+        self::assertFalse($schema->positive()->isValid(0)); // Zero is not positive
     }
 
     public function testNumberRange(): void
@@ -88,11 +83,11 @@ class ValidatorTest extends TestCase
         $schema = $v->number();
 
         $schema->range(-5, 5);
-        $this->assertFalse($schema->isValid(-10)); // Below range
-        $this->assertFalse($schema->isValid(10));  // Above range
-        $this->assertTrue($schema->isValid(5));    // At upper boundary
-        $this->assertTrue($schema->isValid(-5));   // At lower boundary
-        $this->assertTrue($schema->isValid(0));    // Within range
+        self::assertFalse($schema->isValid(-10)); // Below range
+        self::assertFalse($schema->isValid(10));  // Above range
+        self::assertTrue($schema->isValid(5));    // At upper boundary
+        self::assertTrue($schema->isValid(-5));   // At lower boundary
+        self::assertTrue($schema->isValid(0));    // Within range
     }
 
     public function testCombinedNumberValidators(): void
@@ -100,11 +95,11 @@ class ValidatorTest extends TestCase
         $v = new Validator();
         $schema = $v->number()->required()->positive()->range(1, 100);
 
-        $this->assertFalse($schema->isValid(null));  // Required fails
-        $this->assertFalse($schema->isValid(-5));    // Positive fails
-        $this->assertFalse($schema->isValid(0));     // Positive fails
-        $this->assertFalse($schema->isValid(150));   // Range fails
-        $this->assertTrue($schema->isValid(50));     // All pass
+        self::assertFalse($schema->isValid(null));  // Required fails
+        self::assertFalse($schema->isValid(-5));    // Positive fails
+        self::assertFalse($schema->isValid(0));     // Positive fails
+        self::assertFalse($schema->isValid(150));   // Range fails
+        self::assertTrue($schema->isValid(50));     // All pass
     }
 
     public function testArrayValidation(): void
@@ -112,14 +107,12 @@ class ValidatorTest extends TestCase
         $v = new Validator();
         $schema = $v->array();
 
-        // По умолчанию null является валидным
-        $this->assertTrue($schema->isValid(null));
+        self::assertTrue($schema->isValid(null));
 
-        // Тест required
         $schema->required();
-        $this->assertFalse($schema->isValid(null));
-        $this->assertTrue($schema->isValid([]));
-        $this->assertTrue($schema->isValid(['hexlet']));
+        self::assertFalse($schema->isValid(null));
+        self::assertTrue($schema->isValid([]));
+        self::assertTrue($schema->isValid(['hexlet']));
     }
 
     public function testArraySizeof(): void
@@ -127,21 +120,18 @@ class ValidatorTest extends TestCase
         $v = new Validator();
         $schema = $v->array();
 
-        // Без required null по-прежнему валиден
-        $this->assertTrue($schema->isValid(null));
+        self::assertTrue($schema->isValid(null));
 
-        // Проверка sizeof
         $schema->sizeof(2);
-        $this->assertFalse($schema->isValid(['hexlet'])); // только 1 элемент
-        $this->assertTrue($schema->isValid(['hexlet', 'code-basics'])); // 2 элемента
-        $this->assertFalse($schema->isValid(['hexlet', 'code-basics', 'test'])); // 3 элемента
+        self::assertFalse($schema->isValid(['hexlet'])); // только 1 элемент
+        self::assertTrue($schema->isValid(['hexlet', 'code-basics'])); // 2 элемента
+        self::assertFalse($schema->isValid(['hexlet', 'code-basics', 'test'])); // 3 элемента
 
-        // Проверка с required
         $schema->required();
-        $this->assertFalse($schema->isValid(null)); // теперь null не валиден
-        $this->assertFalse($schema->isValid([])); // пустой массив
-        $this->assertFalse($schema->isValid(['hexlet'])); // 1 элемент
-        $this->assertTrue($schema->isValid(['hexlet', 'code-basics'])); // 2 элемента
+        self::assertFalse($schema->isValid(null)); // теперь null не валиден
+        self::assertFalse($schema->isValid([])); // пустой массив
+        self::assertFalse($schema->isValid(['hexlet'])); // 1 элемент
+        self::assertTrue($schema->isValid(['hexlet', 'code-basics'])); // 2 элемента
     }
 
     protected function setUp(): void
@@ -153,19 +143,16 @@ class ValidatorTest extends TestCase
     {
         $schema = $this->validator->array();
 
-        // Позволяет описывать валидацию для ключей массива
         $schema->shape([
             'name' => $this->validator->string()->required(),
             'age' => $this->validator->number()->positive(),
         ]);
 
-        // Valid cases
-        $this->assertTrue($schema->isValid(['name' => 'kolya', 'age' => 100]));
-        $this->assertTrue($schema->isValid(['name' => 'maya', 'age' => null]));
+        self::assertTrue($schema->isValid(['name' => 'kolya', 'age' => 100]));
+        self::assertTrue($schema->isValid(['name' => 'maya', 'age' => null]));
 
-        // Invalid cases
-        $this->assertFalse($schema->isValid(['name' => '', 'age' => null]));
-        $this->assertFalse($schema->isValid(['name' => 'ada', 'age' => -5]));
+        self::assertFalse($schema->isValid(['name' => '', 'age' => null]));
+        self::assertFalse($schema->isValid(['name' => 'ada', 'age' => -5]));
     }
 
     public function testShapeWithMissingKeys(): void
@@ -177,11 +164,9 @@ class ValidatorTest extends TestCase
             'age' => $this->validator->number()->positive(),
         ]);
 
-        // Missing required field 'name'
-        $this->assertFalse($schema->isValid(['age' => 25]));
+        self::assertFalse($schema->isValid(['age' => 25]));
 
-        // Missing optional field 'age' - should be valid
-        $this->assertTrue($schema->isValid(['name' => 'john']));
+        self::assertTrue($schema->isValid(['name' => 'john']));
     }
 
     public function testShapeWithExtraKeys(): void
@@ -192,8 +177,7 @@ class ValidatorTest extends TestCase
             'name' => $this->validator->string()->required(),
         ]);
 
-        // Extra keys should not affect validation
-        $this->assertTrue($schema->isValid(['name' => 'john', 'extra' => 'value']));
+        self::assertTrue($schema->isValid(['name' => 'john', 'extra' => 'value']));
     }
 
     public function testShapeWithEmptyArray(): void
@@ -204,16 +188,14 @@ class ValidatorTest extends TestCase
             'name' => $this->validator->string()->required(),
         ]);
 
-        // Empty array doesn't have required 'name' key
-        $this->assertFalse($schema->isValid([]));
+        self::assertFalse($schema->isValid([]));
     }
 
     public function testShapeWithoutDefinedSchemas(): void
     {
         $schema = $this->validator->array();
 
-        // No shape defined, should work as before
-        $this->assertTrue($schema->isValid(['any', 'array']));
+        self::assertTrue($schema->isValid(['any', 'array']));
     }
 
     public function testCustomStringValidator(): void
@@ -224,13 +206,12 @@ class ValidatorTest extends TestCase
         $v->addValidator('string', 'startWith', $fn);
 
         $schema = $v->string()->test('startWith', 'H');
-        $this->assertFalse($schema->isValid('exlet'));
-        $this->assertTrue($schema->isValid('Hexlet'));
+        self::assertFalse($schema->isValid('exlet'));
+        self::assertTrue($schema->isValid('Hexlet'));
 
-        // Test with non-existent validator (should pass)
         $schema2 = $v->string()->test('nonExistent', 'H');
-        $this->assertTrue($schema2->isValid('exlet'));
-        $this->assertTrue($schema2->isValid('Hexlet'));
+        self::assertTrue($schema2->isValid('exlet'));
+        self::assertTrue($schema2->isValid('Hexlet'));
     }
 
     public function testCustomNumberValidator(): void
@@ -241,14 +222,13 @@ class ValidatorTest extends TestCase
         $v->addValidator('number', 'min', $fn);
 
         $schema = $v->number()->test('min', 5);
-        $this->assertFalse($schema->isValid(4));
-        $this->assertTrue($schema->isValid(6));
-        $this->assertTrue($schema->isValid(5)); // boundary test
+        self::assertFalse($schema->isValid(4));
+        self::assertTrue($schema->isValid(6));
+        self::assertTrue($schema->isValid(5)); // boundary test
 
-        // Test with non-existent validator (should pass)
         $schema2 = $v->number()->test('nonExistent', 5);
-        $this->assertTrue($schema2->isValid(4));
-        $this->assertTrue($schema2->isValid(6));
+        self::assertTrue($schema2->isValid(4));
+        self::assertTrue($schema2->isValid(6));
     }
 
     public function testMultipleCustomValidators(): void
@@ -259,8 +239,8 @@ class ValidatorTest extends TestCase
         $v->addValidator('string', 'endWith', fn($value, $end) => substr($value, -strlen($end)) === $end);
 
         $schema = $v->string()->test('startWith', 'H')->test('endWith', 't');
-        $this->assertFalse($schema->isValid('Hexlety'));
-        $this->assertFalse($schema->isValid('YexleH'));
-        $this->assertTrue($schema->isValid('Hexlet'));
+        self::assertFalse($schema->isValid('Hexlety'));
+        self::assertFalse($schema->isValid('YexleH'));
+        self::assertTrue($schema->isValid('Hexlet'));
     }
 }

@@ -23,17 +23,17 @@ abstract class BaseSchema
         return $this;
     }
 
-    public function test(string $name, ...$args): self
+    public function test(string $name, array ...$args): self
     {
         $this->customTests[] = ['name' => $name, 'args' => $args];
         return $this;
     }
 
-    protected function runCustomTests($value): bool
+    protected function runCustomTests(mixed $value): bool
     {
         foreach ($this->customTests as $test) {
             $validator = $this->validator->getCustomValidator($this->type, $test['name']);
-            if ($validator) {
+            if (!empty($validator)) {
                 if (!call_user_func($validator, $value, ...$test['args'])) {
                     return false;
                 }
@@ -41,6 +41,4 @@ abstract class BaseSchema
         }
         return true;
     }
-
-    abstract public function isValid($value): bool;
 }
