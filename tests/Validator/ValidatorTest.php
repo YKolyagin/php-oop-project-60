@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 
 class ValidatorTest extends TestCase
 {
+    private Validator $validator;
+
     public function testStringValidation(): void
     {
         $v = new Validator();
@@ -142,4 +144,75 @@ class ValidatorTest extends TestCase
         $this->assertTrue($schema->isValid(['hexlet', 'code-basics'])); // 2 элемента
     }
 
+    protected function setUp(): void
+    {
+        $this->validator = new Validator();
+    }
+
+    public function testShapeValidation(): void
+    {
+        $schema = $this->validator->array();
+
+        // Позволяет описывать валидацию для ключей массива
+        $schema->shape([
+            'name' => $this->validator->string()->required(),
+            'age' => $this->validator->number()->positive(),
+        ]);
+
+        // Valid cases
+        $this->assertTrue($schema->isValid(['name' => 'kolya', 'age' => 100]));
+        $this->assertTrue($schema->isValid(['name' => 'maya', 'age' => null]));
+
+        // Invalid cases
+        $this->assertFalse($schema->isValid(['name' => '', 'age' => null]));
+        $this->assertFalse($schema->isValid(['name' => 'ada', 'age' => -5]));
+    }
+
+    public function testShapeWithMissingKeys(): void
+    {
+        $schema = $this->validator->array();
+
+        $schema->shape([
+            'name' => $this->validator->string()->required(),
+            'age' => $this->validator->number()->positive(),
+        ]);
+
+        // Missing required field 'name'
+        $this->assertFalse($schema->isValid(['age' => 25]));
+
+        // Missing optional field 'age' - should be valid
+        $this->assertTrue($schema->isValid(['name' => 'john']));
+    }
+
+    public function testShapeWithExtraKeys(): void
+    {
+        $schema = $this->validator->array();
+
+        $schema->shape([
+            'name' => $this->validator->string()->required(),
+        ]);
+
+        // Extra keys should not affect validation
+        $this->assertTrue($schema->isValid(['name' => 'john', 'extra' => 'value']));
+    }
+
+    public function testShapeWithEmptyArray(): void
+    {
+        $schema = $this->validator->array();
+
+        $schema->shape([
+            'name' => $this->validator->string()->required(),
+        ]);
+
+        // Empty array doesn't have required 'name' key
+        $this->assertFalse($schema->isValid([]));
+    }
+
+    public function testShapeWithoutDefinedSchemas(): void
+    {
+        $schema = $this->validator->array();
+
+        // No shape defined, should work as before
+        $this->assertTrue($schema->isValid(['any', 'array']));
+    }
 }
