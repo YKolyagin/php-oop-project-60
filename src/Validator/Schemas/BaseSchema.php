@@ -23,7 +23,7 @@ abstract class BaseSchema
         return $this;
     }
 
-    public function test(string $name, array ...$args): self
+    public function test(string $name, mixed ...$args): self
     {
         $this->customTests[] = ['name' => $name, 'args' => $args];
         return $this;
