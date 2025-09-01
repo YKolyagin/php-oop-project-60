@@ -63,7 +63,7 @@ class ArraySchema extends BaseSchema
     {
         foreach ($this->customTests as $test) {
             $validator = $this->validator->getCustomValidator($this->type, $test['name']);
-            if (!empty($validator)) {
+            if ($validator !== null) {
                 if (!call_user_func($validator, $value, ...$test['args'])) {
                     return false;
                 }

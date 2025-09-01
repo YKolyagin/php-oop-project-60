@@ -6,18 +6,11 @@ use Hexlet\Validator\Validator;
 
 class NumberSchema extends BaseSchema
 {
-    private bool $isPositive = false;
     private ?array $range = null;
 
     public function __construct(?Validator $validator = null)
     {
         parent::__construct($validator ?? new Validator(), 'number');
-    }
-
-    public function positive(): self
-    {
-        $this->isPositive = true;
-        return $this;
     }
 
     public function range(int $min, int $max): self
@@ -34,10 +27,6 @@ class NumberSchema extends BaseSchema
 
         if ($value === null) {
             return true;
-        }
-
-        if (!is_numeric($value)) {
-            return false;
         }
 
         if ($this->isPositive && $value <= 0) {
@@ -59,7 +48,7 @@ class NumberSchema extends BaseSchema
     {
         foreach ($this->customTests as $test) {
             $validator = $this->validator->getCustomValidator($this->type, $test['name']);
-            if (!empty($validator)) {
+            if ($validator !== null) {
                 if (!call_user_func($validator, $value, ...$test['args'])) {
                     return false;
                 }
@@ -68,7 +57,7 @@ class NumberSchema extends BaseSchema
         return true;
     }
 
-    public function test(string $name, string ...$args): self
+    public function test(string $name, int ...$args): self
     {
         $this->customTests[] = ['name' => $name, 'args' => $args];
         return $this;

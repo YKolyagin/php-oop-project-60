@@ -7,7 +7,6 @@ use Hexlet\Validator\Validator;
 class StringSchema extends BaseSchema
 {
     private ?string $contains = null;
-    private ?int $minLength = null;
 
     public function __construct(?Validator $validator = null)
     {
@@ -20,12 +19,6 @@ class StringSchema extends BaseSchema
         return $this;
     }
 
-    public function minLength(int $length): self
-    {
-        $this->minLength = $length;
-        return $this;
-    }
-
     public function isValid(?string $value): bool
     {
         if ($this->required && ($value === null || $value === '')) {
@@ -34,10 +27,6 @@ class StringSchema extends BaseSchema
 
         if ($value === null) {
             return true;
-        }
-
-        if (!is_string($value)) {
-            return false;
         }
 
         if ($this->required && $value === '') {
@@ -63,7 +52,7 @@ class StringSchema extends BaseSchema
     {
         foreach ($this->customTests as $test) {
             $validator = $this->validator->getCustomValidator($this->type, $test['name']);
-            if (!empty($validator)) {
+            if ($validator !== null) {
                 if (!call_user_func($validator, $value, ...$test['args'])) {
                     return false;
                 }
