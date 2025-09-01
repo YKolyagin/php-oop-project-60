@@ -24,12 +24,12 @@ class Validator
     {
         return new ArraySchema($this);
     }
-    
+
     public function addValidator(string $type, string $name, callable $validator): void
     {
         $this->customValidators[$type][$name] = $validator;
     }
-    
+
     public function getCustomValidator(string $type, string $name): ?callable
     {
         return $this->customValidators[$type][$name] ?? null;

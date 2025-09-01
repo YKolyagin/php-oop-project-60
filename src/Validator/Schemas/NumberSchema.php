@@ -52,7 +52,7 @@ class NumberSchema extends BaseSchema
         if ($this->range !== null && ($value < $this->range['min'] || $value > $this->range['max'])) {
             return false;
         }
-        
+
         // Run custom tests
         if (!$this->runCustomTests($value)) {
             return false;

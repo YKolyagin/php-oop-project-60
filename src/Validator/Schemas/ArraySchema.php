@@ -63,7 +63,7 @@ class ArraySchema extends BaseSchema
                 }
             }
         }
-        
+
         // Run custom tests
         if (!$this->runCustomTests($value)) {
             return false;

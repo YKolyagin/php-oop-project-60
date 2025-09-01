@@ -57,7 +57,7 @@ class StringSchema extends BaseSchema
         if ($this->contains !== null && strpos($value, $this->contains) === false) {
             return false;
         }
-        
+
         // Run custom tests
         if (!$this->runCustomTests($value)) {
             return false;

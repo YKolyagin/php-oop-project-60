@@ -22,13 +22,13 @@ abstract class BaseSchema
         $this->required = true;
         return $this;
     }
-    
+
     public function test(string $name, ...$args): self
     {
         $this->customTests[] = ['name' => $name, 'args' => $args];
         return $this;
     }
-    
+
     protected function runCustomTests($value): bool
     {
         foreach ($this->customTests as $test) {
